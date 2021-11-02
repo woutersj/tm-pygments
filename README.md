@@ -4,7 +4,7 @@
 <img src="tm-pygments-screenshot.png" alt="screenshot of tm-pygments in use" width="600"/>
 
 ## Installation
-To install this plugin, put the files in this repository in a folder `pygments` under `$TEXMACS_HOME_PATH/plugins/` (i.e. under `~/.TeXmacs/plugins/pygments` on Linux or Max).
+To install this plugin, put the files in this repository in a folder `pygments` under `$TEXMACS_HOME_PATH/plugins/` (i.e. under `~/.TeXmacs/plugins/pygments` on Linux or Mac).
 You may have to do `Tools → Update → Plugins` or restart TeXmacs after installation.
 
 To use this TeXmacs plugin, Python and [Pygments](https://pygments.org/)  need to be installed.
