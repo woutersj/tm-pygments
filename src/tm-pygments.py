@@ -60,16 +60,32 @@ class TexmacsFormatter(Formatter):
                 end = '>' + end
             self.styles[token] = (start, end)
 
+    def serialize(self, value):
+        serialization = ""
+        for c in value:
+            if c == '<':
+                serialization += "\<less\>"
+            elif c == '>':
+                serialization += "\<gtr\>"
+            elif c == '\\':
+                serialization += "\\\\"
+            elif c == '|':
+                serialization += "\\|"
+            else:
+                serialization += c
+        return serialization
+
+
     def format(self, tokensource, outfile):
         # lastval is a string we use for caching
-        # because it's possible that an lexer yields a number
+        # because it's possible that a lexer yields a number
         # of consecutive tokens with the same token type.
-        # to minimize the size of the generated html markup we
+        # to minimize the size of the generated texmacs markup we
         # try to join the values of same-type tokens here
         lastval = ''
         lasttype = None
 
-        # wrap the whole output with <pre>
+        # wrap the whole output with <verbatim|...>
         outfile.write('<verbatim|')
 
         for ttype, value in tokensource:
@@ -89,16 +105,16 @@ class TexmacsFormatter(Formatter):
                 # defined style and write it to the output file
                 if lastval:
                     stylebegin, styleend = self.styles[lasttype]
-                    outfile.write(stylebegin + lastval + styleend)
+                    outfile.write(stylebegin + self.serialize(lastval) + styleend)
                 # set lastval/lasttype to current values
                 lastval = value
                 lasttype = ttype
 
         # if something is left in the buffer, write it to the
-        # output file, then close the opened <pre> tag
+        # output file, then close the opened <verbatim|...> tag
         if lastval:
             stylebegin, styleend = self.styles[lasttype]
-            outfile.write(stylebegin + lastval + styleend)
+            outfile.write(stylebegin + self.serialize(lastval) + styleend)
         outfile.write('>\n')
 
 flush_verbatim("Pygments highlighting plugin")
