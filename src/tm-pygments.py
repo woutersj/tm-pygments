@@ -123,6 +123,17 @@ class TexmacsFormatter(Formatter):
 
 flush_verbatim("Pygments highlighting plugin")
 
+# TODO:
+# check for pygments installation in init-pygments.scm
+# do error handling: pygments.util.ClassNotFound for non-existent language
+#                           ValueError: not enough values to unpack (expected 2, got 1)
+#                                in split
+# use default style when not provided
+#
+# BUG: lines beginning with a hash `#` are shown in TeXmacs without newline at the end
+# In this case the newline is inside the <with|color|...|...> tag. If newlines are inside tags
+# it seems the format <\with|color|...> ... </with> should be used
+
 while True:
     line = tm_input()
     if not line:
