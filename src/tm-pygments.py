@@ -71,6 +71,10 @@ class TexmacsFormatter(Formatter):
                 serialization += "\\\\"
             elif c == '|':
                 serialization += "\\|"
+            elif c == '\n':
+                serialization += "\n\n"
+            elif c == " ":
+                serialization += "\ "
             else:
                 serialization += c
         return serialization
@@ -146,6 +150,6 @@ while True:
         lines.append(line)
     code = '\n'.join(lines[:-1])
     texmacs = highlight(code, get_lexer_by_name(lang), \
-        TexmacsFormatter(style=style)).replace("\n","\n\n").replace(" ","\ ")
-
-    flush_any ("texmacs:" + texmacs)
+        TexmacsFormatter(style=style))
+    flush_verbatim(texmacs)
+    #flush_any ("texmacs:" + texmacs)
