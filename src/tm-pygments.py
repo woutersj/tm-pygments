@@ -39,7 +39,7 @@ class TexmacsFormatter(Formatter):
         # value of a token so that we can use it in the format
         # method later
         self.styles = {}
-
+        self.styles_multiline = {}
         # we iterate over the `_styles` attribute of a style item
         # that contains the parsed style values.
         for token, style in self.style:
@@ -59,6 +59,27 @@ class TexmacsFormatter(Formatter):
                 start += '<underline|'
                 end = '>' + end
             self.styles[token] = (start, end)
+
+        #If newlines are inside tags it seems the format
+        # <\with|color|...> ... </with> should be used
+
+        for token, style in self.style:
+            start = end = ''
+            # a style item is a tuple in the following form:
+            # colors are readily specified in hex: 'RRGGBB'
+            if style['color']:
+                start += '<\\with|color|#%s>' % style['color']
+                end = '</with>' + end
+            if style['bold']:
+                start += '<\\with|font-series|bold>'
+                end = '</with>' + end
+            if style['italic']:
+                start += '<\\with|font-shape|italic>'
+                end = '</with>' + end
+            if style['underline']:
+                start += '<\\underline>'
+                end = '</underline>' + end
+            self.styles_multiline[token] = (start, end)
 
     def serialize(self, value):
         serialization = ""
@@ -89,15 +110,22 @@ class TexmacsFormatter(Formatter):
         lastval = ''
         lasttype = None
 
+        # It does not seem possible to have a newline ending a <\with> </with> tag.
+        # E.g.
+        # <\with|color|#408080>//test
+        #
+        #</with>test
+        # does not result in a newline. Move the newline outside of the tag.
+
         # wrap the whole output with <verbatim|...>
-        outfile.write('<verbatim|')
+        outfile.write('<\\verbatim>')
 
         for ttype, value in tokensource:
             # if the token type doesn't exist in the stylemap
             # we try it with the parent of the token type
             # eg: parent of Token.Literal.String.Double is
             # Token.Literal.String
-            while ttype not in self.styles:
+            while ttype not in self.styles_multiline:
                 ttype = ttype.parent
             if ttype == lasttype:
                 # the current token type is the same of the last
@@ -108,8 +136,14 @@ class TexmacsFormatter(Formatter):
                 # have some data in the buffer. wrap it with the
                 # defined style and write it to the output file
                 if lastval:
-                    stylebegin, styleend = self.styles[lasttype]
-                    outfile.write(stylebegin + self.serialize(lastval) + styleend)
+                    stylebegin, styleend = self.styles_multiline[lasttype]
+                    if lastval.strip() == '':
+                        outfile.write(self.serialize(lastval))
+                    else:
+                        if lastval[-1] == '\n':
+                            outfile.write(stylebegin + self.serialize(lastval[:-1]) + styleend + "\n\n")
+                        else:
+                            outfile.write(stylebegin + self.serialize(lastval) + styleend)
                 # set lastval/lasttype to current values
                 lastval = value
                 lasttype = ttype
@@ -117,9 +151,15 @@ class TexmacsFormatter(Formatter):
         # if something is left in the buffer, write it to the
         # output file, then close the opened <verbatim|...> tag
         if lastval:
-            stylebegin, styleend = self.styles[lasttype]
-            outfile.write(stylebegin + self.serialize(lastval) + styleend)
-        outfile.write('>\n')
+            stylebegin, styleend = self.styles_multiline[lasttype]
+            if lastval.strip() == '':
+                outfile.write(self.serialize(lastval))
+            else:
+                if lastval[-1] == '\n':
+                    outfile.write(stylebegin + self.serialize(lastval[:-1]) + styleend + "\n\n")
+                else:
+                    outfile.write(stylebegin + self.serialize(lastval) + styleend)
+        outfile.write('</verbatim>')
 
 flush_verbatim("Pygments highlighting plugin")
 
@@ -129,10 +169,6 @@ flush_verbatim("Pygments highlighting plugin")
 #                           ValueError: not enough values to unpack (expected 2, got 1)
 #                                in split
 # use default style when not provided
-#
-# BUG: lines beginning with a hash `#` are shown in TeXmacs without newline at the end
-# In this case the newline is inside the <with|color|...|...> tag. If newlines are inside tags
-# it seems the format <\with|color|...> ... </with> should be used
 
 while True:
     line = tm_input()
