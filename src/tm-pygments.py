@@ -162,5 +162,4 @@ while True:
     code = '\n'.join(lines[:-1])
     texmacs = highlight(code, get_lexer_by_name(lang), \
         TexmacsFormatter(style=style))
-    flush_verbatim(texmacs)
-    #flush_any ("texmacs:" + texmacs)
+    flush_any ("texmacs:" + texmacs)
