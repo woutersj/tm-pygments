@@ -131,7 +131,7 @@ while True:
              line = tm_input ()
          continue
 
-    lang, style = map(lambda x: x.strip(),line.strip()[2:].split(";",2))
+    lang, style = map(lambda x: x.strip(),line.strip()[1:].split(";",2))
     if not(style in get_all_styles()):
         flush_verbatim("Selected style is not supported")
         while line != "<EOF>":
