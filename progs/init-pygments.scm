@@ -16,17 +16,23 @@
       (with s (texmacs->code (stree->tree u) "SourceCode")
         (string-append  s  "\n<EOF>\n"))))
 
+(define (python-utf8-command) (string-append (python-command) " -X utf8 "))
+
 (define (python-launcher)
   (if (url-exists? "$TEXMACS_HOME_PATH/plugins/pygments")
-      (string-append "python \""
+      (string-append (python-utf8-command) " \""
                      (getenv "TEXMACS_HOME_PATH")
                      "/plugins/pygments/src/tm-pygments.py\"")
-      (string-append "python \""
+      (string-append (python-utf8-command) " \""
                      (getenv "TEXMACS_PATH")
                      "/plugins/pygments/src/tm-pygments.py\"")))
 
 (plugin-configure pygments
-  (:require (url-exists-in-path? "python"))
+  (:winpath "python*" ".")
+  (:winpath "Python*" ".")
+  (:winpath "Python/Python*" ".")
+  (:require (url-exists-in-path? (python-command)))
   (:launch ,(python-launcher))
   (:serializer ,pygments-serialize)
-  (:session "Pygments"))
+  (:session "Pygments")
+  (:scripts "Pygments"))
