@@ -27,6 +27,7 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.styles import get_all_styles
 from pygments.formatter import Formatter
+from pygments.util import ClassNotFound
 
 class TexmacsFormatter(Formatter):
 
@@ -162,7 +163,6 @@ class TexmacsFormatter(Formatter):
 flush_verbatim("Pygments highlighting plugin")
 
 # TODO:
-# check for pygments installation in init-pygments.scm
 # do error handling: pygments.util.ClassNotFound for non-existent language
 #                           ValueError: not enough values to unpack (expected 2, got 1)
 #                                in split
@@ -182,7 +182,7 @@ while True:
 
     lang, style = map(lambda x: x.strip(),line.strip()[1:].split(";",2))
     if not(style in get_all_styles()):
-        flush_verbatim("Selected style is not supported")
+        flush_verbatim("The style " + style + " is not supported")
         while line != "<EOF>":
             line = tm_input ()
         continue
@@ -194,6 +194,9 @@ while True:
             continue
         lines.append(line)
     code = '\n'.join(lines[:-1])
-    texmacs = highlight(code, get_lexer_by_name(lang), \
-        TexmacsFormatter(style=style))
-    flush_any ("texmacs:" + texmacs)
+    try:
+        texmacs = highlight(code, get_lexer_by_name(lang), \
+            TexmacsFormatter(style=style))
+        flush_any ("texmacs:" + texmacs)
+    except ClassNotFound:
+        flush_verbatim("The language " + lang + " is not supported.")
