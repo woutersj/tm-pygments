@@ -24,7 +24,7 @@ from tmpy.protocol        import *
 from tmpy.compat          import *
 
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
+from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.styles import get_all_styles
 from pygments.formatter import Formatter
 from pygments.util import ClassNotFound
@@ -162,31 +162,38 @@ class TexmacsFormatter(Formatter):
 
 flush_verbatim("Pygments highlighting plugin")
 
-# TODO:
-# do error handling: pygments.util.ClassNotFound for non-existent language
-#                           ValueError: not enough values to unpack (expected 2, got 1)
-#                                in split
-# use default style when not provided
-
 while True:
     line = tm_input()
     if not line:
         continue
-    elif not line.strip().startswith("%"):
-         flush_verbatim("The first line needs to start with %, \
-            followed by the language and style to be used for highlighting, \
-            separated by ;. \nE.g. \"% cpp; default\"")
-         while line != "<EOF>":
-             line = tm_input ()
-         continue
-
-    lang, style = map(lambda x: x.strip(),line.strip()[1:].split(";",2))
+    if line.strip().startswith("%"):
+         # flush_verbatim("The first line needs to start with %, \
+         #    followed by the language and style to be used for highlighting, \
+         #    separated by ;. \nE.g. \"% cpp; default\"")
+         # while line != "<EOF>":
+         #     line = tm_input ()
+         # continue
+         
+        # drop initial "%"
+        line = line.strip()[1:]
+        if ';' in line:
+            lang, style = map(lambda x: x.strip(), line.split(";",2))
+        else:
+            lang = line.strip()
+            style = "default"
+        lines = []
+    else:
+        lang = ""
+        style = "default"
+        lines = [line]
+    
     if not(style in get_all_styles()):
-        flush_verbatim("The style " + style + " is not supported")
+        flush_verbatim("The style \'" + style + "\' is not supported")
         while line != "<EOF>":
             line = tm_input ()
         continue
 
+    # Get the code to highlight
     lines = []
     while line != "<EOF>":
         line = tm_input ()
@@ -194,9 +201,14 @@ while True:
             continue
         lines.append(line)
     code = '\n'.join(lines[:-1])
+    
     try:
-        texmacs = highlight(code, get_lexer_by_name(lang), \
+        if lang == "":
+            lexer = guess_lexer(code)
+        else:
+            lexer = get_lexer_by_name(lang)
+        texmacs = highlight(code, lexer, \
             TexmacsFormatter(style=style))
         flush_any ("texmacs:" + texmacs)
     except ClassNotFound:
-        flush_verbatim("The language " + lang + " is not supported.")
+        flush_verbatim("The language \'" + lang + "\' is not supported.")
