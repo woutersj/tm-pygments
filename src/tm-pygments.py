@@ -36,6 +36,7 @@ while True:
     line = tm_input()
     if not line:
         continue
+    
     if line.strip().startswith("%"):
          # flush_verbatim("The first line needs to start with %, \
          #    followed by the language and style to be used for highlighting, \
@@ -64,11 +65,10 @@ while True:
         continue
 
     # Get the code to highlight
-    lines = []
     while line != "<EOF>":
         line = tm_input ()
-        if line == '':
-            continue
+        #if line == '':
+        #    continue
         lines.append(line)
     code = '\n'.join(lines[:-1])
     
@@ -78,7 +78,7 @@ while True:
         else:
             lexer = get_lexer_by_name(lang)
         texmacs = highlight(code, lexer, \
-            TexmacsFormatter(style=style))
+            TeXmacsFormatter(style=style))
         flush_any ("texmacs:" + texmacs)
     except ClassNotFound:
         flush_verbatim("The language \'" + lang + "\' is not supported.")
