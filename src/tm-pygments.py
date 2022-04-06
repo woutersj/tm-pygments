@@ -20,14 +20,12 @@ if (exists (tmpy_home_path)):
 else:
     sys.path.append(os.environ.get("TEXMACS_PATH") + "/plugins/")
 
-from pygments import highlight
-
-from pygments.lexers import get_lexer_by_name
-from pygments.styles import get_all_styles
-
 from tmpy.protocol        import *
 from tmpy.compat          import *
 
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.styles import get_all_styles
 from pygments.formatter import Formatter
 
 class TexmacsFormatter(Formatter):
