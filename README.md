@@ -21,6 +21,6 @@ To use this TeXmacs plugin, Python and [Pygments](https://pygments.org/)  need t
 
 ## Usage
 
-The first line of input needs to specify the code language and the desired colour style. This line needs to begin with `%`, followed by language and colour style, separated by `;`. For example, use `% cpp; xcode` to highlight `C++` code in the `xcode` style.
+The first line of input can be used to specify the code language and the desired colour style. To do this, start the line with `%`, followed by language and, optionally, a colour scheme, separated by `;`. For example, use `% cpp; xcode` to highlight `C++` code in the `xcode` scheme or `% cpp` to highlight `C++` code in the default colour scheme. If no language is specified, the plugin will use Pygments' algorithm to guess the language.
 
 The main use case envisaged for this plugin is to highlight code in documents using an "executable fold". These can be inserted via `Insert → Fold → Executable → Pygments`. Enter the code, together with language and style selection, and activate the fold (check `Fold → Evaluate`). The input can later be retrieved and edited by deactivating the fold in the same way (uncheck `Fold → Evaluate`).
