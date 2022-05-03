@@ -32,7 +32,8 @@
   (:winpath "Python*" ".")
   (:winpath "Python/Python*" ".")
   (:require (url-exists-in-path? (python-command)))
-  (:require (== (eval-system "python -c \"import pygments\"") ""))
+  (:require (== ""
+      (eval-system (string-append (python-command) " -c \"import pygments\""))))
   (:launch ,(python-launcher))
   (:serializer ,pygments-serialize)
   (:session "Pygments")
