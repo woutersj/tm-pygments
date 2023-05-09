@@ -1,3 +1,6 @@
+**The repository has moved to Codeberg. Please report issues there.**
+
+
 # tm-pygments
 **Syntax highlighting in TeXmacs using Pygments**
 
